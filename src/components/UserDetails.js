@@ -16,8 +16,12 @@ const UserDetails = () => {
   const [user, setUser] = useState({});
   const [noUser, setNoUser] = useState(false);
   const [name, setName] = useState("");
+  const [currentRelativeIndex, setCurrentRelativeIndex] = useState(0);
+  const [currentRelative, setCurrentRelative] = useState("");
+  const [currentRelation, setCurrentRelation] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [showEditNameModal, setShowEditNameModal] = useState(false);
+  const [showEditRelativeModal, setShowEditRelativeModal] = useState(false);
 
   const history = useHistory();
   function handleClick(path) {
@@ -43,29 +47,21 @@ const UserDetails = () => {
     };
   }, []);
 
-  const handleEdit = () => {
-    setEditMode(true);
-  };
-
   const handleDelete = async () => {
     try {
       const result = await axios.delete(
         `https://young-fjord-40497.herokuapp.com/users/${id}`
       );
+      console.log(result);
       history.push("/users");
     } catch (error) {
       console.log(error.response);
     }
   };
 
-  const handleSaveChanges = () => {};
-
-  const handleCancelEdit = () => {
-    setEditMode(false);
-  };
-
   const handleCloseModal = () => {
     setShowEditNameModal(false);
+    setShowEditRelativeModal(false);
   };
 
   const handleEditName = (value) => {
@@ -73,7 +69,52 @@ const UserDetails = () => {
     setShowEditNameModal(true);
   };
 
-  const handleChangeName = () => {};
+  const handleChangeRelative = async () => {
+    if (currentRelative && currentRelation) {
+      const newFamilyTree = user.familyTree[currentRelativeIndex];
+      newFamilyTree["name"] = currentRelative;
+      newFamilyTree["relation"] = currentRelation;
+      setUser((prevState) => ({
+        ...prevState,
+      }));
+      try {
+        const result = await axios.patch(
+          `https://young-fjord-40497.herokuapp.com/users/${id}`,
+          {
+            name: user.name,
+            familyTree: user.familyTree,
+          }
+        );
+        handleCloseModal();
+      } catch (error) {
+        console.log(error.response);
+        handleCloseModal();
+      }
+    }
+  };
+
+  const handleChangeName = async () => {
+    if (name) {
+      const newUser = { ...user };
+      newUser.name = name;
+      setUser((prevState) => ({
+        ...prevState,
+        ...newUser,
+      }));
+      try {
+        const result = await axios.patch(
+          `https://young-fjord-40497.herokuapp.com/users/${id}`,
+          {
+            name: name,
+            familyTree: user.familyTree,
+          }
+        );
+        setShowEditNameModal(false);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   if (noUser) {
     return (
@@ -98,13 +139,13 @@ const UserDetails = () => {
           onHide={handleCloseModal}
           animation={false}
         >
-          <Modal.Header closeButton>Add relative</Modal.Header>
+          <Modal.Header closeButton>Edit name</Modal.Header>
           <Modal.Body>
             <Form>
               <Form.Group controlId='formName'>
                 <Form.Label>Name</Form.Label>
                 <Form.Control
-                  value={user.name}
+                  value={name}
                   onChange={(event) => setName(event.target.value)}
                   type='name'
                   placeholder='Enter your name'
@@ -117,7 +158,44 @@ const UserDetails = () => {
               Close
             </Button>
             <Button variant='primary' onClick={handleChangeName}>
-              Add
+              Update
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        <Modal
+          show={showEditRelativeModal}
+          onHide={handleCloseModal}
+          animation={false}
+        >
+          <Modal.Header closeButton>Edit relative info</Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group>
+                <Form.Label>Name</Form.Label>
+                <Form.Control
+                  value={currentRelative}
+                  onChange={(event) => setCurrentRelative(event.target.value)}
+                  type='nameRelative'
+                  placeholder="Enter your relative's name"
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Relation</Form.Label>
+                <Form.Control
+                  value={currentRelation}
+                  onChange={(event) => setCurrentRelation(event.target.value)}
+                  type='relation'
+                  placeholder='Enter your relation'
+                />
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant='secondary' onClick={handleCloseModal}>
+              Close
+            </Button>
+            <Button variant='primary' onClick={handleChangeRelative}>
+              Update
             </Button>
           </Modal.Footer>
         </Modal>
@@ -140,8 +218,18 @@ const UserDetails = () => {
             <ListGroup>
               {user.familyTree?.map((relative, index) => (
                 <ListGroup.Item>
-                  {`${index + 1} ${relative.name} - ${relative.relation} `}
-                  <Button variant='link'>Edit</Button>
+                  {`${index + 1}. ${relative.name} - ${relative.relation} `}
+                  <Button
+                    variant='link'
+                    onClick={() => {
+                      setCurrentRelativeIndex(index);
+                      setCurrentRelative(relative.name);
+                      setCurrentRelation(relative.relation);
+                      setShowEditRelativeModal(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
                 </ListGroup.Item>
               ))}
             </ListGroup>

@@ -12,7 +12,9 @@ const UserList = () => {
   useEffect(() => {
     let isMounted = true;
     const fetchData = async () => {
-      const result = await axios.get("https://young-fjord-40497.herokuapp.com/users");
+      const result = await axios.get(
+        "https://young-fjord-40497.herokuapp.com/users"
+      );
       const newUsers = result.data.success.users;
       if (isMounted) setUsers(() => [...newUsers]);
     };

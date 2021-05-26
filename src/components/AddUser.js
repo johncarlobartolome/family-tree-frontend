@@ -39,10 +39,7 @@ const AddUser = () => {
   const handleSubmit = async () => {
     const data = { name, familyTree: [...relatives] };
     try {
-      const result = await axios.post(
-        "https://young-fjord-40497.herokuapp.com/users",
-        data
-      );
+      const result = await axios.post("https://young-fjord-40497.herokuapp.com/users", data);
       setShowAlert(false);
       setShowSuccess(true);
     } catch (error) {
