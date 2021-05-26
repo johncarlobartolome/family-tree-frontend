@@ -39,7 +39,7 @@ const AddUser = () => {
   const handleSubmit = async () => {
     const data = { name, familyTree: [...relatives] };
     try {
-      const result = await axios.post("https://young-fjord-40497.herokuapp.com/users", data);
+      await axios.post("https://young-fjord-40497.herokuapp.com/users", data);
       setShowAlert(false);
       setShowSuccess(true);
     } catch (error) {
@@ -55,7 +55,7 @@ const AddUser = () => {
   return (
     <>
       <Container>
-        {showAlert == true ? (
+        {showAlert === true ? (
           <Alert
             className='mt-5'
             variant='danger'
@@ -65,15 +65,15 @@ const AddUser = () => {
             <Alert.Heading>{error.title}</Alert.Heading>
             <p>{error.message}</p>
             <ul>
-              {error.invalidParams.map((param) => (
-                <li>{`${param.message}`}</li>
+              {error.invalidParams.map((param, index) => (
+                <li key={index}>{`${param.message}`}</li>
               ))}
             </ul>
           </Alert>
         ) : (
           <></>
         )}
-        {showSuccess == true ? (
+        {showSuccess === true ? (
           <Alert
             className='mt-5'
             variant='success'
@@ -109,7 +109,7 @@ const AddUser = () => {
           </Form.Group>
           <ListGroup>
             {relatives.map((relative, index) => (
-              <ListGroup.Item>
+              <ListGroup.Item key={index}>
                 {`${index + 1}. ${relative.name} - ${relative.relation}`}
               </ListGroup.Item>
             ))}

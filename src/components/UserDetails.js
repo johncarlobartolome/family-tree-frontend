@@ -19,7 +19,6 @@ const UserDetails = () => {
   const [currentRelativeIndex, setCurrentRelativeIndex] = useState(0);
   const [currentRelative, setCurrentRelative] = useState("");
   const [currentRelation, setCurrentRelation] = useState("");
-  const [editMode, setEditMode] = useState(false);
   const [showEditNameModal, setShowEditNameModal] = useState(false);
   const [showEditRelativeModal, setShowEditRelativeModal] = useState(false);
 
@@ -45,7 +44,7 @@ const UserDetails = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  });
 
   const handleDelete = async () => {
     try {
@@ -78,7 +77,7 @@ const UserDetails = () => {
         ...prevState,
       }));
       try {
-        const result = await axios.patch(
+        await axios.patch(
           `https://young-fjord-40497.herokuapp.com/users/${id}`,
           {
             name: user.name,
@@ -102,7 +101,7 @@ const UserDetails = () => {
         ...newUser,
       }));
       try {
-        const result = await axios.patch(
+        await axios.patch(
           `https://young-fjord-40497.herokuapp.com/users/${id}`,
           {
             name: name,
@@ -217,7 +216,7 @@ const UserDetails = () => {
 
             <ListGroup>
               {user.familyTree?.map((relative, index) => (
-                <ListGroup.Item>
+                <ListGroup.Item key={index}>
                   {`${index + 1}. ${relative.name} - ${relative.relation} `}
                   <Button
                     variant='link'
